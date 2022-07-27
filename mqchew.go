@@ -35,7 +35,8 @@ func persistRegistration(registration *Registration, db *sql.DB) (*sql.Rows, err
 	//Ideally we'd have some sort of abstraction or ORM in front of this so end-engineers wouldn't need
 	//to mess around with raw SQL
 	insert, err := db.Query("INSERT INTO attendees(name, email, tour) VALUES(?,?,?)", registration.Name, registration.Email, registration.Tour)
-	defer insert.Close()
+	//I just want to return the error to the caller so I don't need/want to defer here... I think...
+	insert.Close()
 	return insert, err
 }
 
