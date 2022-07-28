@@ -1,11 +1,14 @@
 package main
 
-import "testing"
+import (
+	h "bidoof/helpers"
+	"testing"
+)
 
 func TestJsonToRegistration(t *testing.T) {
 	jsonMessage := `{"name":"Prof.Oak","email":"oak@kantolab.poke","tour":"Durice","islandType":"ice"}`
 
-	expectedRegistration := Registration{
+	expectedRegistration := h.Registration{
 		Name:       "Prof.Oak",
 		Email:      "oak@kantolab.poke",
 		Tour:       "Durice",
@@ -34,7 +37,7 @@ func TestJsonToRegistrationFailure(t *testing.T) {
 }
 
 func TestFormatEmailBody(t *testing.T) {
-	registration := Registration{
+	registration := h.Registration{
 		Name:       "Prof.Oak",
 		Email:      "oak@kantolab.poke",
 		Tour:       "Durice",

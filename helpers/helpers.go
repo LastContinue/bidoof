@@ -1,12 +1,18 @@
 package helpers
 
 import (
-	"fmt"
 	"log"
-	"os"
-
-	_ "github.com/joho/godotenv/autoload"
+	"time"
 )
+
+const RETRY_TIME = 10
+
+type Registration struct {
+	Name       string `json:"name"`
+	Email      string `json:"email"`
+	Tour       string `json:"tour"`
+	IslandType string `json:"islandType"`
+}
 
 func FailOnError(err error, msg string) {
 	if err != nil {
@@ -14,11 +20,7 @@ func FailOnError(err error, msg string) {
 	}
 }
 
-func MakeDbConnectionString() string {
-	dbUser := os.Getenv("DB_USER")
-	dbPassword := os.Getenv("DB_PASSWORD")
-	dbUrl := os.Getenv("DB_URL")
-	dbName := os.Getenv("DB_NAME")
-
-	return fmt.Sprintf("%s:%s@tcp(%s)/%s", dbUser, dbPassword, dbUrl, dbName)
+func RetrySleep(message string) {
+	log.Printf("Failed to connect to %s... will sleep on it and try again", message)
+	time.Sleep(RETRY_TIME * time.Second)
 }
