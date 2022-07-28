@@ -61,12 +61,33 @@ func sendRegistrationEmail(registration *Registration) {
 }
 
 func main() {
+
 	//Connect to RabbitMQ
 	mqUrl := os.Getenv("MESSAGE_QUEUE_URL")
 	mqQueueName := os.Getenv("MESSAGE_QUEUE_NAME")
 
+	retrySleep := func(message string) {
+		log.Printf("Failed to connect to %s... will sleep on it and try again", message)
+		time.Sleep(2 * time.Second)
+	}
+
 	conn, err := amqp.Dial(mqUrl)
-	helpers.FailOnError(err, "Failed to connect to RabbitMQ")
+	rabbitRetryCount := 0
+	//When trying to run this with other containers, I noticed this would try to start
+	//before the others were fully functional, so a few retries might do the trick here
+
+	//Would be better to abstract this into a function
+	//Needs to be tested as well, but my Go skills can't quite figure out how
+	//to look for fatal's
+
+	//Probably 100 better ways of doing this...
+	for err != nil && rabbitRetryCount < 5 {
+		rabbitRetryCount++
+		retrySleep("RabbitMQ")
+		conn, err = amqp.Dial(mqUrl)
+	}
+	helpers.FailOnError(err, "Failed to connect to RabbitMQ after several attempts")
+
 	defer conn.Close()
 
 	ch, err := conn.Channel()
@@ -84,9 +105,15 @@ func main() {
 	)
 	helpers.FailOnError(err, "Failed to register a consumer")
 
-	//Connect to DB
+	//Connect to DB - same comment as above for Rabbit: would like to abstract this into a function
 	db, err := sql.Open("mysql", helpers.MakeDbConnectionString())
-	helpers.FailOnError(err, "Failed to open DB connection")
+	dbRetryCount := 0
+	for err != nil && dbRetryCount < 5 {
+		dbRetryCount++
+		retrySleep("DB")
+		db, err = sql.Open("mysql", helpers.MakeDbConnectionString())
+	}
+	helpers.FailOnError(err, "Failed to open DB connection after several attempts")
 	defer db.Close()
 
 	go func() {
