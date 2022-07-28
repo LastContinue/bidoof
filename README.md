@@ -12,7 +12,10 @@ For this to work properly you'll need
 * Amqp message queue (I used RabbitMQ)
 * Mysql DB with an "attendees" table (see the sql file in the `docs` directory)
 * Copy the `.env_example` file into `.env` and fill out the details (the queue name you specify should already exist)
-* run `go run mqchew.go`
+* run `go run bidoof.go`
+
+Optionally you can run it as part of a docker-compose stack with the Gist here
+https://gist.github.com/LastContinue/c7573904228ddda464c798b6817f4792
 
 As the messages roll in (and assuming they are formatted properly) the app will log out what it's doing.
 ![Screenshot of application processing a message](/docs/helpful-screenshot.png "a screenshot")
